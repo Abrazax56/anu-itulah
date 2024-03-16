@@ -74,7 +74,7 @@ const myLove: MyLove = {
     "seblak",
     "eskrim"
   ],
-  unknown: 'unknown';
+  unknown: 'unknown'
 };
 
 const sendLove: SendLove = (love: MyLove): void => {
