@@ -80,4 +80,14 @@ const sendLove: SendLove = (love: MyLove): void => {
   console.info(love);
 }
 
+const {
+  name,
+  address,
+  age,
+  hobbies,
+  educations,
+  favouriteFoods
+}: MyLove = myLove;
+
 sendLove(myLove);
+sendLove(name);
