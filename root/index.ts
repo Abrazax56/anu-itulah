@@ -73,7 +73,8 @@ const myLove: MyLove = {
     "mie ayam",
     "seblak",
     "eskrim"
-  ]
+  ],
+  unknown: 'unknown';
 };
 
 const sendLove: SendLove = (love: MyLove): void => {
