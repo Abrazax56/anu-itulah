@@ -1,0 +1,16 @@
+{
+  "name": "beni",
+  "version": "1.0.1",
+  "type": "module",
+  "description": "beni",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "bun run ./root/index.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "latest"
+  },
+  "author": "ahmad bni rusli",
+  "license": "ISC"
+}
