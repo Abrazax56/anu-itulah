@@ -55,7 +55,7 @@ const BufferJSON = {
   },
 };
 
-export default async (collection) => {
+export const useMongoDBAuthState = async (collection) => {
   const writeData = (data, id) => {
     const informationToStore = JSON.parse(
       JSON.stringify(data, BufferJSON.replacer)

@@ -7,7 +7,7 @@ import makeWaSocket, {
 } from '@whiskeysockets/baileys';
 import { MongoClient } from 'mongodb';
 import 'dotenv/config';
-import useMongoDBAuthState from '.././dbAuth/MongoAuth';
+import { useMongoDBAuthState } from '.././dbAuth/MongoAuth';
 
 const mongoUrl: string = process.env.MONGO_CONNECT;
 const client = new MongoClient(mongoUrl);
