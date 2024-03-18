@@ -1,94 +1,74 @@
-interface Address {
-  country: string;
-  province: string;
-  city: string;
-  district: string;
-  village: string;
-}
+import makeWaSocket, {
+  DisconnectReason,
+  useMultiFileAuthState,
+  MessageType,
+  MessageOptions,
+  Mimetype
+} from '@whiskeysockets/baileys';
+import { MongoClient } from 'mongodb';
+import 'dotenv/config';
+import useMongoDBAuthState from '.././dbAuth/MongoAuth';
 
-interface Hobbies {
-  [index: number]: string
-}
+const mongoUrl: string = process.env.MONGO_CONNECT;
+const client = new MongoClient(mongoUrl);
 
-interface EducationDetail {
-  name: string;
-  level: string;
-  address: string;
-  year: string;
-}
-
-interface Education {
-  [index: number]: EducationDetail
-}
-
-interface FavouriteFood {
-  [index: number]: string;
-}
-
-interface MyLove {
-  name: string;
-  address: Address;
-  age: number;
-  hobbies: Hobbies;
-  educations: Education;
-  favouriteFoods: FavouriteFood;
-}
-
-interface SendLove {
-  (love: MyLove): void;
-}
-
-const myLove: MyLove = {
-  name: "Via Fitriana",
-  address: {
-    country: "Indonesian",
-    province: "Central Java",
-    city: "Cilacap Regency",
-    district: "Sidareja",
-    village: "Cibenon"
-  },
-  age: 19,
-  hobbies: [
-    "drawing",
-    "make up",
-    "play game"
-  ],
-  educations: [
-    {
-      name: "SMK Yos Sidareja",
-      level: "Vacational High School",
-      address: "Cibenon, Sidareja",
-      year: "2020 - 2023"
-    },
-    {
-      name: "SMP Yos Sidareja",
-      level: "Elementary School",
-      address: "Cibenon, Sidareja",
-      year: "2017 - 2020"
+async function connectToWa(): void {
+  
+  await client.connect();
+  const database: any = mongoClient
+    .db("databun")
+    .collection("bundata");
+  const { state, saveCreds }: {state: any, saveCreds: any} = await useMongoDBAuthState(database);
+  const sock: any = makeWASocket({
+    printQRInTerminal: true,
+    auth: state,
+  });
+  
+  sock.ev.on("connection.update", async (update: any): void => {
+    const { connection, lastDisconnect, qr }: any = update || {};
+    if (qr) console.log(qr);
+    if (connection === "close") {
+      const shouldReconnect =
+        lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+      if (shouldReconnect) {
+        connectToWa();
+      }
     }
-  ],
-  favouriteFoods: [
-    "ayam geprek",
-    "bakso",
-    "mie ayam",
-    "seblak",
-    "eskrim"
-  ],
-  unknown: 'unknown'
-};
-
-const sendLove: SendLove = (love: MyLove): void => {
-  console.info(love);
+  });
+  
+  sock.ev.on("messages.update", (messageInfo: any): void => {
+    console.log("receiving message!");
+  });
+  
+  sock.ev.on("messages.upsert", async({messages: any, type: any}): void => {
+    try {
+      
+      const captureMessage: string = messages[0].message.extendedTextMessage.text;
+      const numberWa: string = messages[0]?.key?.remoteJid;
+      const args: string = captureMessage.trim().split(/ +/).slice(1);
+      const compareMessage: string = captureMessage.toLowerCase().split(' ')[0] || '';
+      
+      if(type === "notify") {
+        switch (compareMessage) {
+          case 'ping':
+            await sock.sendMessage(numberWa, {
+              text: "hi"
+            })
+            break;
+          default:
+            await sock.sendPresenceUpdate('recording', numberWa);
+            break;
+        }
+      } else {
+        await sock.sendPresenceUpdate('composing', numberWa);
+      }
+      
+    } catch (error) {
+      console.log(error);
+    }
+  });
+  
+  sock.ev.on("creds.update", saveCreds);
 }
 
-const {
-  name,
-  address,
-  age,
-  hobbies,
-  educations,
-  favouriteFoods
-}: MyLove = myLove;
-
-sendLove(myLove);
-sendLove(name);
+connectToWa();
