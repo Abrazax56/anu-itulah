@@ -8,7 +8,12 @@
     "start": "bun run ./root/index.ts"
   },
   "devDependencies": {
+    "@whiskeysockets/baileys": "latest",
     "bun-types": "latest",
+    "dotenv": "latest",
+    "mongodb": "latest",
+    "mongoose": "latest",
+    "qrcode-terminal": "latest",
     "typescript": "latest"
   },
   "author": "ahmad bni rusli",
