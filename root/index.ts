@@ -18,14 +18,14 @@ async function connectToWa(): void {
   const database: any = mongoClient
     .db("databun")
     .collection("bundata");
-  const { state, saveCreds }: {state: any, saveCreds: any} = await useMongoDBAuthState(database);
+  const { state, saveCreds } = await useMongoDBAuthState(database);
   const sock: any = makeWASocket({
     printQRInTerminal: true,
     auth: state,
   });
   
-  sock.ev.on("connection.update", async (update: any): void => {
-    const { connection, lastDisconnect, qr }: any = update || {};
+  sock.ev.on("connection.update", async (update) => {
+    const { connection, lastDisconnect, qr } = update || {};
     if (qr) console.log(qr);
     if (connection === "close") {
       const shouldReconnect =
@@ -36,11 +36,11 @@ async function connectToWa(): void {
     }
   });
   
-  sock.ev.on("messages.update", (messageInfo: any): void => {
+  sock.ev.on("messages.update", (messageInfo) => {
     console.log("receiving message!");
   });
   
-  sock.ev.on("messages.upsert", async({messages: any, type: any}): void => {
+  sock.ev.on("messages.upsert", async({messages, type}): void => {
     try {
       
       const captureMessage: string = messages[0].message.extendedTextMessage.text;
